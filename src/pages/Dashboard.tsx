@@ -2,24 +2,42 @@ import { Button } from "../components/Button"
 import { Input } from "../components/Input"
 import { useState } from "react"
 import { RefundItem } from "../components/RefundItem"
-import searchSvg from "../assets/search.svg"
 import { CATEGORIES } from "../utils/categories"
+import { Pagination } from "../components/Pagination"
+import { formatCurrency } from "../utils/formatCurrency"
+import searchSvg from "../assets/search.svg"
 
 const REFUND_EXAMPLE = {
   id: "123",
   username: "André",
   category: "Transporte",
-  amount: "20,30",
-  categoryImg: CATEGORIES["transport"].icon 
+  amount: formatCurrency(34.5),
+  categoryImg: CATEGORIES["transport"].icon
 }
 
 export function Dashboard() {
 
   const [name, setName] = useState("")
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(10)
 
   function fetchRefunds(e: React.FormEvent) {
     e.preventDefault()
     console.log(name)
+  }
+
+  function handlePagination(action: "next" | "previous") {
+    setPage((prevPage) => {
+      if (action === "next" && prevPage < totalPages) {
+        return prevPage + 1
+      }
+
+      if (action === "previous" && prevPage > 1) {
+        return prevPage - 1
+      }
+
+      return prevPage
+    })
   }
 
   return (
@@ -37,18 +55,25 @@ export function Dashboard() {
         </Button>
       </form>
 
-      <div className="mt-6 flex flex-col gap-4 max-h-[342px] overflow-y-scroll">
-        <RefundItem data={REFUND_EXAMPLE}/>
-        <RefundItem data={REFUND_EXAMPLE}/>
-        <RefundItem data={REFUND_EXAMPLE}/>
-        <RefundItem data={REFUND_EXAMPLE}/>
-        <RefundItem data={REFUND_EXAMPLE}/>
-        <RefundItem data={REFUND_EXAMPLE}/>
-        <RefundItem data={REFUND_EXAMPLE}/>
-        <RefundItem data={REFUND_EXAMPLE}/>
-        <RefundItem data={REFUND_EXAMPLE}/>
-        <RefundItem data={REFUND_EXAMPLE}/>
+      <div className="my-6 flex flex-col gap-4 max-h-[342px] overflow-y-scroll">
+        <RefundItem data={REFUND_EXAMPLE} />
+        <RefundItem data={REFUND_EXAMPLE} />
+        <RefundItem data={REFUND_EXAMPLE} />
+        <RefundItem data={REFUND_EXAMPLE} />
+        <RefundItem data={REFUND_EXAMPLE} />
+        <RefundItem data={REFUND_EXAMPLE} />
+        <RefundItem data={REFUND_EXAMPLE} />
+        <RefundItem data={REFUND_EXAMPLE} />
+        <RefundItem data={REFUND_EXAMPLE} />
+        <RefundItem data={REFUND_EXAMPLE} />
       </div>
+
+      <Pagination
+        current={page}
+        total={totalPages}
+        onNext={() => handlePagination("next")}
+        onPrevious={() => handlePagination("previous")}
+      />
     </div>
   )
 }
