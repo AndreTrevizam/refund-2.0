@@ -1,5 +1,3 @@
-import { data } from "react-router"
-
 export type RefundItemProps = {
     id: string
     username: string
@@ -24,7 +22,7 @@ export function RefundItem({ data, ...rest }: Props) {
             </div>
 
             <span className="text-sm text-gray-100 font-semibold">
-                <small className="font-normal text-gray-200">R$ </small>
+                <small className="font-normal text-gray-200">R$</small>
                 {data.amount}
             </span>
         </a>
