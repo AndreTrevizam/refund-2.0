@@ -1,13 +1,14 @@
 import { Input } from "../components/Input"
 import { CATEGORIES, CATEGORIES_KEYS } from "../utils/categories"
 import { Select } from "../components/Select"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Upload } from "../components/Upload"
 import { Button } from "../components/Button"
 import { useNavigate, useParams } from "react-router"
 import { z, ZodError } from "zod"
 import { api } from "../services/api"
 import { AxiosError } from "axios"
+import { formatCurrency } from "../utils/formatCurrency"
 import fileSvg from "../assets/file.svg"
 
 const refundSchema = z.object({
@@ -23,6 +24,7 @@ export function Refund() {
   const [category, setCategory] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [file, setFile] = useState<File | null>(null)
+  const [fileURL, setFileURL] = useState<string | null>(null)
 
   const navigate = useNavigate()
 
@@ -74,6 +76,33 @@ export function Refund() {
     }
   }
 
+  async function fetchRefunds(id: string) {
+    try {
+
+      const { data } = await api.get<RefundAPIResponse>(`/refunds/${id}`)
+
+      setName(data.name)
+      setCategory(data.category)
+      setAmount(formatCurrency(data.amount))
+      setFileURL(data.filename)
+
+    } catch (error) {
+      console.log(error)
+
+      if (error instanceof AxiosError) {
+        return alert(error.response?.data.message)
+      }
+
+      return alert("Não foi possível carregar")
+    }
+  }
+
+  useEffect(() => {
+    if (params.id) {
+      fetchRefunds(params.id)
+    }
+  }, [params.id])
+
   return (
     <form onSubmit={onSubmit} className="bg-gray-500 w-full rounded-xl flex flex-col p-10 gap-6 lg:min-w-[512px]">
       <header>
@@ -103,10 +132,11 @@ export function Refund() {
       </div>
 
       {
-        params.id ? <a href="https://app.rocketseat.com.br/" target="_blank" className="text-sm text-green-100 font-semibold flex items-center justify-center gap-2 my-6 hover:opacity-70 transition ease-linear">
-          <img src={fileSvg} alt="Ícone do arquivo" />
-          Abrir comprovante
-        </a> : <Upload filename={file && file.name} onChange={(e) => e.target.files && setFile(e.target.files[0])} ></Upload>
+        (params.id && fileURL) ? (
+          <a href={`http://localhost:3333/uploads/${fileURL}`} target="_blank" className="text-sm text-green-100 font-semibold flex items-center justify-center gap-2 my-6 hover:opacity-70 transition ease-linear">
+            <img src={fileSvg} alt="Ícone do arquivo" />
+            Abrir comprovante
+          </a>) : (<Upload filename={file && file.name} onChange={(e) => e.target.files && setFile(e.target.files[0])} ></Upload>)
       }
 
       <Button type="submit" isLoading={isLoading}>
